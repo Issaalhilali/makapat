@@ -474,6 +474,13 @@
   30% { transform: translateY(-5px); opacity: 1; }
 }
 
+/* ---------- Mobile/tablet: lift the FAB above the site's bottom nav bar --- */
+@media (max-width: 1023px) {
+  #nabih-root .nbh-fab { bottom: 88px; }   /* clears the ~74px fixed bottom bar */
+  #nabih-root .nbh-window { bottom: 160px; max-height: calc(100vh - 196px); }
+  #nabih-root .nbh-teaser { bottom: 102px; }
+}
+
 /* ---------- Small screens ------------------------------------------------- */
 @media (max-width: 460px) {
   #nabih-root .nbh-window {
@@ -486,7 +493,7 @@
     max-height: 88vh;
     border-radius: 18px 18px 0 0;
   }
-  #nabih-root .nbh-fab { bottom: 18px; right: 18px; }
+  #nabih-root .nbh-fab { bottom: 88px; right: 18px; }
 }
 
 /* Shorter viewports: cap height so the window never overflows the screen. */
@@ -666,7 +673,8 @@
   50%      { transform: translateY(-6px); }
 }
 
-/* Hide the teaser on small screens to avoid crowding the touch UI */
-@media (max-width: 520px) {
+/* Keep the teaser on mobile too (above the lifted FAB); only suppress it on
+   ultra-narrow screens where a 230px bubble would overflow. */
+@media (max-width: 360px) {
   #nabih-root .nbh-teaser { display: none; }
 }
