@@ -675,6 +675,76 @@
 
 /* Keep the teaser on mobile too (above the lifted FAB); only suppress it on
    ultra-narrow screens where a 230px bubble would overflow. */
+/* =========================================================================
+   Responsive Layout & Mobile Adjustments
+   ========================================================================= */
+
+@media (max-width: 1023px) {
+  #nabih-root .nbh-fab { 
+    bottom: 85px !important;       
+    right: 20px !important;
+    width: 58px !important;        
+    height: 58px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  #nabih-root .nbh-avatar-mask, 
+  #nabih-root .nbh-avatar-mask img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+  }
+
+  #nabih-root .nbh-window { 
+    bottom: 155px !important; 
+    right: 20px !important;
+    max-height: calc(100vh - 190px) !important; 
+  }
+  
+  #nabih-root .nbh-teaser { 
+    bottom: 96px !important; 
+    right: 90px !important;
+  }
+}
+
+@media (max-width: 460px) {
+  #nabih-root .nbh-window {
+    bottom: 155px !important;      
+    right: 16px !important;
+    left: 16px !important;
+    width: auto !important;
+    max-width: calc(100vw - 32px) !important;
+    height: 480px !important;      
+    max-height: 65vh !important;   
+    border-radius: var(--nbh-radius) !important; 
+  }
+  
+  #nabih-root .nbh-fab { 
+    bottom: 85px !important; 
+    right: 16px !important; 
+  }
+
+  #nabih-root .nbh-msg {
+    font-size: 13.5px !important;
+    padding: 9px 12px !important;
+  }
+  
+  #nabih-root .nbh-chip {
+    font-size: 12px !important;
+    padding: 6px 11px !important;
+  }
+}
+
+@media (max-height: 680px) {
+  #nabih-root .nbh-window { 
+    height: calc(100vh - 140px) !important; 
+    max-height: 70vh !important;
+  }
+}
+
 @media (max-width: 360px) {
-  #nabih-root .nbh-teaser { display: none; }
+  #nabih-root .nbh-teaser { display: none !important; }
 }
