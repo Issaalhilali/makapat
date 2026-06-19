@@ -1,0 +1,672 @@
+/* =========================================================================
+   Nabih (نبيه) — AI Smart Assistant widget styles
+   All rules are scoped under #nabih-root and use a unique --nbh-* token set
+   so nothing bleeds into (or inherits unexpectedly from) the Salla theme.
+   ========================================================================= */
+
+#nabih-root {
+  /* Design tokens — Training Cubes brand: deep blue + orange/green accents */
+  --nbh-primary: #11263a;        /* deep blue (footer) */
+  --nbh-primary-dark: #0a1826;
+  --nbh-primary-light: #1d3b57;
+  --nbh-orange: #f29a3e;         /* logo orange */
+  --nbh-orange-dark: #e07e22;
+  --nbh-green: #2bb673;          /* logo green */
+  --nbh-green-dark: #1f9c60;
+
+  --nbh-bg: #ffffff;
+  --nbh-surface: #eef3f8;
+  --nbh-bubble-bot: #eef2f6;
+  --nbh-bubble-user: linear-gradient(135deg, var(--nbh-orange), var(--nbh-orange-dark));
+  --nbh-text: #11263a;
+  --nbh-text-soft: #5b6b7b;
+  --nbh-border: #e3e9f0;
+  --nbh-shadow: 0 18px 50px rgba(17, 38, 58, 0.28);
+  --nbh-radius: 20px;
+
+  /* Glassmorphism surface for the chat window */
+  --nbh-glass: rgba(255, 255, 255, 0.72);
+  --nbh-glass-border: rgba(255, 255, 255, 0.5);
+
+  /* Reset so the host theme can't reach inside */
+  all: initial;
+  font-family: "Tajawal", "Segoe UI", system-ui, -apple-system, sans-serif;
+  direction: rtl;
+}
+
+#nabih-root *,
+#nabih-root *::before,
+#nabih-root *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* ---------- Floating Action Button ---------------------------------------- */
+#nabih-root .nbh-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147483000;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 2px solid #d4af37;        /* metallic gold ring (matches badge) */
+  border-radius: 50%;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--nbh-primary), var(--nbh-primary-dark));
+  color: #fff;
+  box-shadow: var(--nbh-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  animation: nbh-pop 0.4s ease both;
+}
+#nabih-root .nbh-fab:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 16px 48px rgba(17, 38, 58, 0.4);
+}
+#nabih-root .nbh-fab:active { transform: scale(0.96); }
+
+/* ---------- Masked avatar (shared by FAB + header) ----------------------- */
+/* A perfect circle that hides the raw asset's checkerboard + bottom text by
+   cropping to the inner badge via object-fit + scale. */
+#nabih-root .nbh-avatar-mask {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  display: block;
+  z-index: 1;
+}
+#nabih-root .nbh-avatar-mask img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Frame the face, shmagh, sunglasses + upper coffee cup (not bottom-cropped). */
+  object-position: center 25%;
+  transform: scale(1.1);
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+#nabih-root .nbh-fab .nbh-badge {
+  position: absolute;
+  top: -2px;
+  inset-inline-start: -2px;
+  z-index: 2;                      /* above the masked avatar */
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--nbh-green);
+  border: 2px solid #fff;
+}
+
+/* Subtle attention pulse */
+#nabih-root .nbh-fab::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(17, 38, 58, 0.45);
+  animation: nbh-pulse 2.4s infinite;
+}
+
+/* ---------- Chat window --------------------------------------------------- */
+#nabih-root .nbh-window {
+  position: fixed;
+  bottom: 96px;       /* sits directly above the FAB */
+  right: 24px;        /* physical right corner (RTL-safe) */
+  z-index: 2147483000;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  height: 560px;
+  max-height: calc(100vh - 132px);
+  border-radius: var(--nbh-radius);
+  box-shadow: var(--nbh-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  /* Glassmorphism — translucent surface that blurs the page behind it.
+     The rgba fallback keeps it readable where backdrop-filter is unsupported. */
+  background: var(--nbh-glass);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--nbh-glass-border);
+
+  transform-origin: bottom right;   /* grow from the FAB */
+  opacity: 0;
+  transform: translateY(20px) scale(0.92);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#nabih-root .nbh-window.nbh-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Header */
+#nabih-root .nbh-header {
+  background: linear-gradient(135deg, var(--nbh-primary), var(--nbh-primary-dark));
+  color: #fff;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#nabih-root .nbh-avatar {
+  position: relative;       /* anchors the absolutely-positioned mask */
+  width: 36px;              /* scaled-down replica of the FAB avatar */
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #d4af37;
+  background: var(--nbh-primary-dark);
+  flex-shrink: 0;
+}
+#nabih-root .nbh-htext { flex: 1; line-height: 1.3; }
+#nabih-root .nbh-htext h3 { font-size: 16px; font-weight: 700; }
+#nabih-root .nbh-status {
+  font-size: 12px;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+#nabih-root .nbh-status .nbh-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--nbh-green);
+  box-shadow: 0 0 0 0 rgba(43, 182, 115, 0.7);
+  animation: nbh-pulse-dot 1.8s infinite;
+}
+#nabih-root .nbh-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.85;
+  transition: background 0.2s, opacity 0.2s;
+}
+#nabih-root .nbh-close:hover { background: rgba(255, 255, 255, 0.15); opacity: 1; }
+
+/* Messages area — translucent so the glass blur shows behind the bubbles */
+#nabih-root .nbh-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 16px;
+  background: rgba(238, 243, 248, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+#nabih-root .nbh-messages::-webkit-scrollbar { width: 6px; }
+#nabih-root .nbh-messages::-webkit-scrollbar-thumb {
+  background: #c3d2e0;
+  border-radius: 99px;
+}
+
+#nabih-root .nbh-msg {
+  max-width: 82%;
+  padding: 11px 14px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--nbh-text);
+  border-radius: 16px;
+  word-wrap: break-word;
+  animation: nbh-msg-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+#nabih-root .nbh-msg.nbh-bot {
+  align-self: flex-start;
+  background: var(--nbh-bubble-bot);
+  border-bottom-right-radius: 6px;
+}
+#nabih-root .nbh-msg.nbh-user {
+  align-self: flex-end;
+  background: var(--nbh-bubble-user);
+  color: #fff;
+  border-bottom-left-radius: 6px;
+}
+
+/* Deep-links inside bot replies */
+#nabih-root .nbh-msg .nbh-link {
+  color: var(--nbh-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+#nabih-root .nbh-msg .nbh-link:hover { color: var(--nbh-primary-dark); }
+
+/* Quick-reply suggestion chips */
+#nabih-root .nbh-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-self: flex-start;
+  max-width: 100%;
+  animation: nbh-msg-in 0.32s ease both;
+}
+#nabih-root .nbh-chip {
+  background: #fff;
+  border: 1px solid var(--nbh-border);
+  color: var(--nbh-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+#nabih-root .nbh-chip:hover { background: var(--nbh-surface); transform: translateY(-1px); }
+
+/* ---------- Course / Product cards --------------------------------------- */
+#nabih-root .nbh-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: stretch;
+  animation: nbh-msg-in 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+#nabih-root .nbh-card {
+  background: #fff;
+  border: 1px solid var(--nbh-border);
+  border-radius: 16px;
+  padding: 14px 15px;
+  box-shadow: 0 4px 14px rgba(17, 38, 58, 0.08);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+#nabih-root .nbh-card::before {
+  /* Brand accent rail on the inline-start edge (RTL = right). */
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--nbh-orange), var(--nbh-green));
+}
+#nabih-root .nbh-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(17, 38, 58, 0.16);
+  border-color: #c7d6e4;
+}
+
+#nabih-root .nbh-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+#nabih-root .nbh-card-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--nbh-text);
+  line-height: 1.5;
+  flex: 1;
+}
+#nabih-root .nbh-card-price {
+  flex-shrink: 0;
+  /* luxury purple → indigo with a gold rim + gold lettering */
+  background: linear-gradient(135deg, #3b2a63, #6b4aa0);
+  color: #ffe6a6;
+  border: 1px solid #d4af37;
+  font-size: 12.5px;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 99px;
+  white-space: nowrap;
+  box-shadow: 0 3px 12px rgba(59, 42, 99, 0.35);
+}
+#nabih-root .nbh-card-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+#nabih-root .nbh-card-stars .nbh-star { color: #d4af37; font-size: 13px; line-height: 1; }
+#nabih-root .nbh-card-stars .nbh-star-empty { color: #d9dee4; }
+#nabih-root .nbh-card-rating-val {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--nbh-text-soft);
+  margin-inline-start: 5px;
+}
+#nabih-root .nbh-card-price.nbh-card-price-quote {
+  background: var(--nbh-surface);
+  color: var(--nbh-primary);
+  box-shadow: none;
+  border: 1px dashed #c3d2e0;
+}
+
+#nabih-root .nbh-card-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--nbh-text-soft);
+  margin-bottom: 12px;
+}
+
+#nabih-root .nbh-card-cta {
+  display: block;
+  text-align: center;
+  background: linear-gradient(135deg, var(--nbh-orange), var(--nbh-orange-dark));
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+#nabih-root .nbh-card-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 8px 20px rgba(224, 126, 34, 0.42);
+}
+#nabih-root .nbh-card-cta:active { transform: scale(0.98); }
+
+/* Typing indicator */
+#nabih-root .nbh-typing {
+  align-self: flex-start;
+  background: var(--nbh-bubble-bot);
+  padding: 13px 16px;
+  border-radius: 16px;
+  border-bottom-right-radius: 6px;
+  display: flex;
+  gap: 4px;
+  animation: nbh-msg-in 0.25s ease both;
+}
+#nabih-root .nbh-typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a9bccd;
+  animation: nbh-bounce 1.2s infinite;
+}
+#nabih-root .nbh-typing span:nth-child(2) { animation-delay: 0.15s; }
+#nabih-root .nbh-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+/* Input bar */
+#nabih-root .nbh-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border-top: 1px solid var(--nbh-glass-border);
+}
+#nabih-root .nbh-input input {
+  flex: 1;
+  border: 1px solid var(--nbh-border);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 99px;
+  padding: 11px 16px;
+  font-size: 14.5px;
+  color: var(--nbh-text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+#nabih-root .nbh-input input::placeholder { color: var(--nbh-text-soft); }
+#nabih-root .nbh-input input:focus {
+  border-color: var(--nbh-primary);
+  box-shadow: 0 0 0 3px rgba(17, 38, 58, 0.14);
+}
+#nabih-root .nbh-send {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--nbh-primary), var(--nbh-primary-dark));
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, opacity 0.2s;
+}
+#nabih-root .nbh-send:hover { transform: scale(1.08); }
+#nabih-root .nbh-send:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+#nabih-root .nbh-send svg { width: 20px; height: 20px; transform: scaleX(-1); }
+
+#nabih-root .nbh-foot {
+  text-align: center;
+  font-size: 11px;
+  color: var(--nbh-text-soft);
+  padding: 0 0 8px;
+  background: rgba(255, 255, 255, 0.55);
+}
+#nabih-root .nbh-foot b { color: var(--nbh-primary); }
+
+/* ---------- Animations ---------------------------------------------------- */
+@keyframes nbh-pop {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes nbh-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(17, 38, 58, 0.45); }
+  70% { box-shadow: 0 0 0 16px rgba(17, 38, 58, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(17, 38, 58, 0); }
+}
+@keyframes nbh-pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(43, 182, 115, 0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(43, 182, 115, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(43, 182, 115, 0); }
+}
+@keyframes nbh-msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes nbh-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ---------- Small screens ------------------------------------------------- */
+@media (max-width: 460px) {
+  #nabih-root .nbh-window {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 88vh;            /* leave the top of the page visible/usable */
+    max-height: 88vh;
+    border-radius: 18px 18px 0 0;
+  }
+  #nabih-root .nbh-fab { bottom: 18px; right: 18px; }
+}
+
+/* Shorter viewports: cap height so the window never overflows the screen. */
+@media (max-height: 680px) {
+  #nabih-root .nbh-window { height: calc(100vh - 120px); }
+}
+
+/* ---------- Proactive welcome feed — Course Snippet Cards ----------------- */
+#nabih-root .nbh-snippets {
+  align-self: stretch;
+  animation: nbh-msg-in 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+#nabih-root .nbh-snippets-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nbh-primary);
+  margin: 2px 2px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#nabih-root .nbh-snippets-title::before {
+  content: "✨";
+  font-size: 14px;
+}
+#nabih-root .nbh-snippet-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#nabih-root .nbh-snippet {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  text-align: start;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--nbh-border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+#nabih-root .nbh-snippet:hover {
+  transform: translateY(-2px);
+  border-color: #c7d6e4;
+  box-shadow: 0 8px 20px rgba(17, 38, 58, 0.12);
+}
+#nabih-root .nbh-snippet-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  background: linear-gradient(135deg, rgba(242, 154, 62, 0.16), rgba(43, 182, 115, 0.16));
+}
+#nabih-root .nbh-snippet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+#nabih-root .nbh-snippet-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--nbh-text);
+  line-height: 1.4;
+}
+#nabih-root .nbh-snippet-benefit {
+  font-size: 12px;
+  color: var(--nbh-text-soft);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ---------- Conversion ribbon on course cards ---------------------------- */
+#nabih-root .nbh-card-ribbon {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--nbh-green), var(--nbh-green-dark));
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  margin-bottom: 9px;
+  box-shadow: 0 2px 8px rgba(43, 182, 115, 0.3);
+}
+
+/* ---------- Premium micro-interactions + polish ------------------------- */
+/* Subtle avatar zoom on FAB hover */
+#nabih-root .nbh-fab:hover .nbh-avatar-mask img { transform: scale(1.18); }
+#nabih-root .nbh-avatar-mask img { transition: transform 0.3s ease; }
+
+/* Smoother open/close compositing */
+#nabih-root .nbh-window { will-change: transform, opacity; }
+
+/* Staggered entrance for snippet + course cards */
+#nabih-root .nbh-snippet,
+#nabih-root .nbh-card {
+  animation: nbh-msg-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+#nabih-root .nbh-snippet:nth-child(1),
+#nabih-root .nbh-card:nth-child(1) { animation-delay: 0.04s; }
+#nabih-root .nbh-snippet:nth-child(2),
+#nabih-root .nbh-card:nth-child(2) { animation-delay: 0.12s; }
+#nabih-root .nbh-snippet:nth-child(3),
+#nabih-root .nbh-card:nth-child(3) { animation-delay: 0.2s; }
+#nabih-root .nbh-snippet:nth-child(4),
+#nabih-root .nbh-card:nth-child(4) { animation-delay: 0.28s; }
+
+/* Respect reduced-motion: drop animations/transitions for accessibility + perf */
+@media (prefers-reduced-motion: reduce) {
+  #nabih-root *,
+  #nabih-root *::before,
+  #nabih-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Attention-grabber teaser bubble ----------------------------- */
+#nabih-root .nbh-teaser {
+  position: fixed;
+  bottom: 38px;                 /* aligns with the FAB's vertical centre */
+  right: 100px;                 /* sits to the inline-start (left in RTL) of FAB */
+  z-index: 2147483000;
+  max-width: 230px;
+  background: #ffffff;
+  color: var(--nbh-primary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid #f0e3c0;
+  box-shadow: 0 10px 30px rgba(17, 38, 58, 0.22);
+  cursor: pointer;
+  /* fade/scale in (delayed), then gently bob */
+  animation: nbh-teaser-in 0.45s 1s both, nbh-teaser-bob 2.6s 1.5s ease-in-out infinite;
+}
+#nabih-root .nbh-teaser-text { white-space: normal; }
+/* small pointer triangle aimed at the FAB (to the right in RTL) */
+#nabih-root .nbh-teaser-arrow {
+  position: absolute;
+  top: 50%;
+  right: -7px;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border-top: 1px solid #f0e3c0;
+  border-right: 1px solid #f0e3c0;
+  transform: translateY(-50%) rotate(45deg);
+}
+#nabih-root .nbh-teaser.nbh-teaser-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.85) translateX(12px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s 0.25s;
+  animation: none;
+}
+
+@keyframes nbh-teaser-in {
+  from { opacity: 0; transform: scale(0.85) translateX(12px); }
+  to   { opacity: 1; transform: scale(1) translateX(0); }
+}
+@keyframes nbh-teaser-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* Hide the teaser on small screens to avoid crowding the touch UI */
+@media (max-width: 520px) {
+  #nabih-root .nbh-teaser { display: none; }
+}

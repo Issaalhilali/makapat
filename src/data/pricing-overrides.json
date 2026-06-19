@@ -1,0 +1,43 @@
+{
+  "_comment": "Curated featured courses with premium price tags + benefit blurbs, merged into store-knowledge.json by the crawler (knowledge-base.js). Survives re-crawls. Set a per-course `url` to deep-link a specific page; leave it empty to default to the live Courses page.",
+  "featuredCourses": [
+    {
+      "id": "course-admin",
+      "title": "الدورات الإدارية المعتمدة",
+      "price": "499 ر.س",
+      "icon": "📊",
+      "badge": "الأكثر طلباً",
+      "description": "أتقن مهارات الإدارة الحديثة واحصل على شهادة معتمدة من TVTC تفتح لك أبواب الترقّي الوظيفي.",
+      "url": "",
+      "rating": 4.9
+    },
+    {
+      "id": "course-skills",
+      "title": "دورات المهارات المهنية",
+      "price": "750 ر.س",
+      "icon": "🛠️",
+      "description": "ارفع كفاءتك المهنية بمسارات تطبيقية معتمدة تصنع فرقاً حقيقياً في سوق العمل السعودي.",
+      "url": "",
+      "rating": 4.8
+    },
+    {
+      "id": "course-leadership",
+      "title": "دورات القيادة والإدارة التنفيذية",
+      "price": "1200 ر.س",
+      "icon": "🎯",
+      "badge": "الأعلى قيمة",
+      "description": "برنامج قيادي متقدّم يؤهّلك لقيادة الفرق واتخاذ القرارات الاستراتيجية بثقة وفعالية.",
+      "url": "",
+      "rating": 5.0
+    },
+    {
+      "id": "course-remote",
+      "title": "دورات قصيرة معتمدة عن بُعد",
+      "price": "350 ر.س",
+      "icon": "💻",
+      "description": "حقّق التطوّر الذي تطمح له من أي مكان عبر دورات قصيرة مرنة ومعتمدة رسمياً.",
+      "url": "",
+      "rating": 4.7
+    }
+  ]
+}
