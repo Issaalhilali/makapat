@@ -15,13 +15,16 @@ const router = express.Router();
 // Security headers for our own API responses.
 router.use(helmet());
 
-// Allow the store's production origin(s) to call the assistant cross-origin.
+// تفعيل CORS ذكي يدعم روابط المحلي، مكعبات، وكافة روابط فيرسيل التجريبية والأساسية
 router.use(
   cors({
     origin(origin, callback) {
-      // Allow same-origin / server-to-server (no Origin header) and any
-      // explicitly allow-listed origin.
-      if (!origin || config.allowedOrigins.includes(origin)) {
+      if (!origin) return callback(null, true);
+      
+      const isVercel = /\.vercel\.app$/i.test(origin); // السماح لجميع روابط فيرسيل الفرعية
+      const isLocal = /localhost/i.test(origin);       // السماح للمحلي
+      
+      if (isVercel || isLocal || config.allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
       return callback(new Error(`Origin not allowed by CORS: ${origin}`));
