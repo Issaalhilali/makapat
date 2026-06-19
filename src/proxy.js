@@ -46,6 +46,12 @@ const HOST_FIX_STYLE = `<style id="nabih-host-fix">
   .elementor-element-67401ac .e-n-menu-title-container{
     justify-content:center !important; padding-inline:0 !important;
   }
+  /* drop the mobile hamburger/heading so all menu items fit on one row */
+  .elementor-element-67401ac .e-n-menu-toggle,
+  .elementor-element-67401ac .e-n-menu-heading{ display:none !important; }
+  .elementor-element-67401ac .e-n-menu-title-text{
+    font-size:10.5px !important; white-space:nowrap !important;
+  }
   /* room so page content isn't hidden behind the fixed bar */
   body{ padding-bottom:74px !important; }
 }

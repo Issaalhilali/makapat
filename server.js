@@ -49,5 +49,8 @@ app.listen(config.port, () => {
   }
   console.log('');
 });
-
+// تشغيل ملف index.html مباشرة عند الدخول على الرابط الرئيسي
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 module.exports = app;
