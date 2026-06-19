@@ -33,12 +33,10 @@ app.use(
 app.use('/api', apiRouter);
 
 // 3. Reverse proxy to the live store.
-// تفعيل البروكسي بناءً على متغير البيئة ENABLE_PROXY ليقوم بسحب موقع مكعبات وحقن المساعد
-if (config.nodeEnv !== 'production' || process.env.ENABLE_PROXY === 'true') {
-  app.use('/', createProxy(config));
-}
+// تم إلغاء الشروط هنا ليعمل البروكسي بشكل إجباري ومباشر في كل بيئات Vercel (Production & Preview)
+app.use('/', createProxy(config));
 
-// تشغيل السيرفر محلياً (Vercel سيتجاهل listen ويعتمد على الأقسام العلوية)
+// تشغيل السيرفر محلياً (Vercel سيتجاهل listen ويعتمد على الـ exports بالأسفل)
 if (process.env.NODE_ENV !== 'production') {
   app.listen(config.port, () => {
     console.log('\n  ✦ Nabih × Muk3bat');
@@ -46,9 +44,7 @@ if (process.env.NODE_ENV !== 'production') {
     console.log(`  Env      : ${config.nodeEnv}`);
     console.log(`  Local    : http://localhost:${config.port}`);
     console.log(`  Assistant: POST /api/nabih-chat   (AI ${config.aiEnabled ? 'ENABLED · ' + config.anthropicModel : 'mock fallback'})`);
-    if (config.nodeEnv !== 'production' || process.env.ENABLE_PROXY === 'true') {
-      console.log(`  Proxy    : mirroring ${config.proxyTarget} (dev)`);
-    }
+    console.log(`  Proxy    : mirroring ${config.proxyTarget}`);
     console.log('');
   });
 }
