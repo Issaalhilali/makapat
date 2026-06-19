@@ -182,7 +182,10 @@
     els.window.classList.toggle('nbh-open', isOpen);
     if (isOpen) {
       dismissTeaser(); // auto-hide the attention-grabber on open
-      setTimeout(function () { els.input.focus(); }, 280);
+      // Desktop only — avoid popping the mobile keyboard the moment it opens.
+      if (window.innerWidth > 1023) {
+        setTimeout(function () { els.input.focus(); }, 280);
+      }
       scrollToBottom();
     }
   }
@@ -463,7 +466,9 @@
       .finally(function () {
         isSending = false;
         els.send.disabled = false;
-        els.input.focus();
+        // Only auto-focus on desktop. On mobile/tablet this would force the
+        // on-screen keyboard to jump up in the user's face after every reply.
+        if (window.innerWidth > 1023) els.input.focus();
       });
   }
 

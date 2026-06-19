@@ -681,7 +681,7 @@
 
 @media (max-width: 1023px) {
   #nabih-root .nbh-fab { 
-    bottom: 85px !important;       
+    bottom: 95px !important;       
     right: 20px !important;
     width: 58px !important;        
     height: 58px !important;
@@ -705,26 +705,26 @@
   }
   
   #nabih-root .nbh-teaser { 
-    bottom: 96px !important; 
+    bottom: 104px !important; 
     right: 90px !important;
   }
 }
 
 @media (max-width: 460px) {
   #nabih-root .nbh-window {
-    bottom: 155px !important;      
-    right: 16px !important;
-    left: 16px !important;
+    bottom: 90px !important;      
+    right: 20px !important;
+    left: 20px !important;
     width: auto !important;
-    max-width: calc(100vw - 32px) !important;
+    max-width: calc(100vw - 40px) !important;
     height: 480px !important;      
     max-height: 65vh !important;   
     border-radius: var(--nbh-radius) !important; 
   }
   
   #nabih-root .nbh-fab { 
-    bottom: 85px !important; 
-    right: 16px !important; 
+    bottom: 95px !important; 
+    right: 20px !important; 
   }
 
   #nabih-root .nbh-msg {
