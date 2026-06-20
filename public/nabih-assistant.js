@@ -86,7 +86,7 @@
 
   var WELCOME =
     'أهلاً بك في مركز مكعبات للتدريب! 🧩 أنا <b>نبيه</b>، مساعدك الذكي. اسألني عن الدورات، الأسعار، الاعتماد، أو أي شيء آخر وسأساعدك فوراً.';
-  var WELCOME_CHIPS = ['أسعار الدورات', 'هل الشهادة معتمدة؟', 'من هم المدربون؟'];
+  var WELCOME_CHIPS = ['أسعار الدورات', 'هل الشهادة معتمدة؟', 'من هم المدربون؟', 'تواصل معنا'];
 
   var els = {}; // cached element refs
   var isOpen = false;
@@ -364,6 +364,56 @@
     }
   }
 
+  // Render a contact card with tappable channel buttons (WhatsApp/call/email/page).
+  function addContact(contact) {
+    if (!contact || !contact.actions || !contact.actions.length) return;
+    var ICONS_C = { whatsapp: '💬', call: '📞', email: '✉️', page: '🔗' };
+
+    var wrap = document.createElement('div');
+    wrap.className = 'nbh-contact';
+
+    if (contact.title) {
+      var t = document.createElement('div');
+      t.className = 'nbh-contact-title';
+      t.textContent = contact.title;
+      wrap.appendChild(t);
+    }
+
+    var grid = document.createElement('div');
+    grid.className = 'nbh-contact-actions';
+
+    contact.actions.forEach(function (a) {
+      if (!a || !a.url) return;
+      if (!/^(https?:|tel:|mailto:)/i.test(a.url)) return; // safety: known schemes only
+      var btn = document.createElement('a');
+      btn.className = 'nbh-contact-btn nbh-contact-' + (a.type || 'page');
+      btn.href = a.url;
+      if (/^https?:/i.test(a.url)) { btn.target = '_blank'; btn.rel = 'noopener noreferrer'; }
+
+      var ic = document.createElement('span');
+      ic.className = 'nbh-contact-ic';
+      ic.textContent = ICONS_C[a.type] || '🔗';
+      btn.appendChild(ic);
+
+      var lbl = document.createElement('span');
+      lbl.className = 'nbh-contact-lbl';
+      lbl.textContent = a.label || a.type;
+      btn.appendChild(lbl);
+
+      if (a.display) {
+        var sub = document.createElement('span');
+        sub.className = 'nbh-contact-sub';
+        sub.textContent = toArabicDigits(a.display);
+        btn.appendChild(sub);
+      }
+      grid.appendChild(btn);
+    });
+
+    wrap.appendChild(grid);
+    els.messages.appendChild(wrap);
+    scrollToBottom();
+  }
+
   function showTyping() {
     var t = document.createElement('div');
     t.className = 'nbh-typing';
@@ -454,6 +504,7 @@
         var reply = data.reply || '...';
         addMessage(renderRich(reply), 'bot');
         addCards(data.cards);
+        addContact(data.contact);
         addSuggestions(data.suggestions);
         // Record the turn for follow-up context.
         history.push({ role: 'user', content: text });

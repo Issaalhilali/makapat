@@ -643,6 +643,67 @@
 
 /* Keep the teaser on mobile too (above the lifted FAB); only suppress it on
    ultra-narrow screens where a 230px bubble would overflow. */
+
+/* ---------- Contact card (channel buttons) ------------------------------ */
+#nabih-root .nbh-contact {
+  align-self: stretch;
+  background: #fff;
+  border: 1px solid var(--nbh-border);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 4px 14px rgba(17, 38, 58, 0.08);
+  animation: nbh-msg-in 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+#nabih-root .nbh-contact-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--nbh-primary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#nabih-root .nbh-contact-title::before { content: "🤝"; }
+#nabih-root .nbh-contact-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+#nabih-root .nbh-contact-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--nbh-primary);
+  transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0;
+}
+#nabih-root .nbh-contact-btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+#nabih-root .nbh-contact-btn:active { transform: scale(0.98); }
+#nabih-root .nbh-contact-ic { font-size: 15px; line-height: 1; flex-shrink: 0; }
+#nabih-root .nbh-contact-lbl { white-space: nowrap; }
+#nabih-root .nbh-contact-sub {
+  margin-inline-start: auto;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: ltr;
+}
+/* channel tints */
+#nabih-root .nbh-contact-whatsapp { background: linear-gradient(135deg, #25d366, #128c46); }
+#nabih-root .nbh-contact-call     { background: linear-gradient(135deg, var(--nbh-primary), var(--nbh-primary-dark)); }
+#nabih-root .nbh-contact-email    { background: linear-gradient(135deg, var(--nbh-orange), var(--nbh-orange-dark)); }
+#nabih-root .nbh-contact-page     { background: linear-gradient(135deg, #5b6b7b, #3f4b57); }
+
+
 /* =========================================================================
    Responsive Layout & Mobile Adjustments
    ========================================================================= */

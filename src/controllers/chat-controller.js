@@ -19,11 +19,12 @@ async function handleChat(req, res) {
   }
 
   try {
-    const { reply, suggestions, cards } = await generateAIResponse(message, history);
+    const { reply, suggestions, cards, contact } = await generateAIResponse(message, history);
     return res.json({
       reply,
       suggestions: suggestions || [],
       cards: cards || [],
+      contact: contact || null,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

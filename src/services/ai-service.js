@@ -63,9 +63,14 @@ function buildSystemPrompt(userMessage) {
 /* ----------------------------- pricing + cards -------------------------- */
 
 const PRICING_RE = /(سعر|اسعار|أسعار|تكلف|تكلفه|رسوم|باقه|باقات|بكم|كم تكلف|price|cost|fee|pricing)/i;
+const CONTACT_RE = /(تواصل|اتصال|اتصل|رقم|جوال|هاتف|واتس|واتساب|ايميل|بريد|ابلغ|شكوى|دعم|خدمة العملاء|تواصلو|كلمو|contact|whatsapp|phone|email|call|support)/i;
 
 function isPricingIntent(text) {
   return PRICING_RE.test(String(text || ''));
+}
+
+function isContactIntent(text) {
+  return CONTACT_RE.test(String(text || ''));
 }
 
 function shorten(text, max) {
@@ -121,6 +126,32 @@ function extractCards(raw) {
 function buildPromo() {
   if (!config.promoEnabled) return '';
   return `🎁 عرض خاص: استخدم كود **${config.promoCode}** للحصول على خصم عند التسجيل — ومقاعد الدفعة القادمة محدودة، بادر بالحجز! ⏳`;
+}
+
+/* ----------------------------- contact actions ------------------------- */
+
+// Real contact channels rendered as tappable buttons in a contact card.
+function buildContactActions() {
+  const c = config.contact || {};
+  const kb = knowledgeBase.load();
+  const contactUrl = kb && kb.store && kb.store.contactUrl;
+  const actions = [];
+  if (c.whatsapp) actions.push({ type: 'whatsapp', label: 'واتساب', url: c.whatsapp });
+  if (c.phone) actions.push({ type: 'call', label: 'اتصال', url: 'tel:' + c.phone, display: c.phoneDisplay || c.phone });
+  if (c.email) actions.push({ type: 'email', label: 'البريد', url: 'mailto:' + c.email, display: c.email });
+  if (contactUrl) actions.push({ type: 'page', label: 'صفحة التواصل', url: contactUrl });
+  return actions;
+}
+
+function buildContactResponse() {
+  const c = config.contact || {};
+  const hours = 'فريقنا جاهز لخدمتك (٩ صباحاً - ١١ مساءً).';
+  return {
+    reply: `يسعدنا تواصلك مع فريق مكعبات للتدريب 🤝 اختر الطريقة الأنسب لك:\n${hours}`,
+    contact: { title: 'تواصل مع فريق مكعبات', actions: buildContactActions() },
+    suggestions: ['ما هي الدورات المتاحة؟', 'أسعار الدورات', 'هل الشهادة معتمدة؟'],
+    cards: [],
+  };
 }
 
 // Lazily-constructed singleton Anthropic client (only when a key exists).
@@ -189,10 +220,12 @@ function buildPricingResponse() {
  */
 async function generateAIResponse(userMessage, conversationHistory = []) {
   const pricing = isPricingIntent(userMessage);
+  const contact = isContactIntent(userMessage);
 
   // Demo path (no API key): deterministic, knowledge-driven responses.
   if (!config.aiEnabled) {
     if (pricing) return buildPricingResponse();
+    if (contact) return buildContactResponse();
     const base = await mockResponse(userMessage, conversationHistory);
     return enrichWithLinks(userMessage, base);
   }
@@ -200,6 +233,7 @@ async function generateAIResponse(userMessage, conversationHistory = []) {
   // Claude path.
   const result = await callClaude(userMessage, conversationHistory);
   let { reply, cards } = result;
+  let contactCard = null;
 
   if (pricing) {
     // Guarantee cards + the conversion nudge even if the model skipped them.
@@ -208,7 +242,12 @@ async function generateAIResponse(userMessage, conversationHistory = []) {
     if (promo && !reply.includes(config.promoCode)) reply = `${reply}\n\n${promo}`;
   }
 
-  return { reply, cards, suggestions: result.suggestions || [] };
+  if (contact) {
+    // Attach the real contact channels as tappable buttons (deterministic).
+    contactCard = { title: 'تواصل مع فريق مكعبات', actions: buildContactActions() };
+  }
+
+  return { reply, cards, contact: contactCard, suggestions: result.suggestions || [] };
 }
 
 // Append relevant clickable markdown links from the knowledge base.
