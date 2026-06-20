@@ -114,15 +114,13 @@
       '</span>';
 
     root.innerHTML =
-      // Floating action button (renders the masked avatar)
-      '<button class="nbh-fab" aria-label="افتح المساعد الذكي نبيه">' +
-        '<span class="nbh-badge"></span>' + avatar +
+      // Floating launcher: a circular avatar that briefly expands into a pill
+      // ("اسأل نبيه ✦") to invite engagement, then collapses back to a circle.
+      '<button class="nbh-fab" aria-label="افتح المساعد الذكي نبيه — اسأل نبيه">' +
+        '<span class="nbh-badge"></span>' +
+        '<span class="nbh-fab-avatar">' + avatar + '</span>' +
+        '<span class="nbh-fab-label">اسأل نبيه ✦</span>' +
       '</button>' +
-      // Attention-grabbing teaser bubble (auto-hides once the chat opens)
-      '<div class="nbh-teaser" role="button" tabindex="0" aria-label="افتح المساعد الذكي نبيه">' +
-        '<span class="nbh-teaser-text">المساعد الذكي نبيه.. اسأل نبيه</span>' +
-        '<span class="nbh-teaser-arrow" aria-hidden="true"></span>' +
-      '</div>' +
       // Chat window
       '<section class="nbh-window" role="dialog" aria-label="المساعد الذكي نبيه">' +
         '<header class="nbh-header">' +
@@ -151,10 +149,10 @@
     els.form = root.querySelector('.nbh-input');
     els.input = root.querySelector('#nbh-text');
     els.send = root.querySelector('.nbh-send');
-    els.teaser = root.querySelector('.nbh-teaser');
 
     bindEvents();
     renderWelcome();
+    scheduleLauncherPill();
   }
 
   function bindEvents() {
@@ -164,16 +162,21 @@
       e.preventDefault();
       send(els.input.value);
     });
-    if (els.teaser) {
-      els.teaser.addEventListener('click', function () { if (!isOpen) toggle(); });
-      els.teaser.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!isOpen) toggle(); }
-      });
-    }
   }
 
-  function dismissTeaser() {
-    if (els.teaser) els.teaser.classList.add('nbh-teaser-hidden');
+  // Launcher-pill attention pattern: expand to a labelled pill shortly after
+  // load, then auto-collapse back to a circle so it never nags.
+  var pillTimers = [];
+  function scheduleLauncherPill() {
+    pillTimers.push(setTimeout(function () {
+      if (!isOpen) els.fab.classList.add('nbh-fab-expanded');
+    }, 1200));
+    pillTimers.push(setTimeout(collapseLauncher, 6000)); // collapse after ~4.8s open
+  }
+  function collapseLauncher() {
+    pillTimers.forEach(clearTimeout);
+    pillTimers = [];
+    if (els.fab) els.fab.classList.remove('nbh-fab-expanded');
   }
 
   /* ---- Open / close ----------------------------------------------------- */
@@ -181,7 +184,7 @@
     isOpen = !isOpen;
     els.window.classList.toggle('nbh-open', isOpen);
     if (isOpen) {
-      dismissTeaser(); // auto-hide the attention-grabber on open
+      collapseLauncher(); // settle to a circle once the chat is open
       // Desktop only — avoid popping the mobile keyboard the moment it opens.
       if (window.innerWidth > 1023) {
         setTimeout(function () { els.input.focus(); }, 280);

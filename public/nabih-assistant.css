@@ -46,26 +46,33 @@
 /* ---------- Floating Action Button ---------------------------------------- */
 #nabih-root .nbh-fab {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 28px;                     /* roomier, elegant offset from the edge */
+  right: 28px;
   z-index: 2147483000;
-  width: 64px;
   height: 64px;
+  min-width: 64px;                  /* circle when collapsed; grows into a pill */
+  width: auto;
   padding: 0;
   border: 2px solid #d4af37;        /* metallic gold ring (matches badge) */
   border-radius: 50%;
   cursor: pointer;
   background: linear-gradient(135deg, var(--nbh-primary), var(--nbh-primary-dark));
   color: #fff;
-  box-shadow: var(--nbh-shadow);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;      /* avatar pinned to the inline-start (right in RTL) */
+  gap: 0;
+  /* layered depth + a faint gold halo so it floats clear of the page edge */
+  box-shadow: 0 12px 30px rgba(17, 38, 58, 0.34), 0 0 0 5px rgba(212, 175, 55, 0.12);
+  transition: border-radius 0.4s ease, padding 0.35s ease, gap 0.35s ease,
+              box-shadow 0.25s ease, transform 0.25s ease;
   animation: nbh-pop 0.4s ease both;
 }
 #nabih-root .nbh-fab:hover {
-  transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 16px 48px rgba(17, 38, 58, 0.4);
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 18px 44px rgba(17, 38, 58, 0.42), 0 0 0 6px rgba(212, 175, 55, 0.18);
 }
-#nabih-root .nbh-fab:active { transform: scale(0.96); }
+#nabih-root .nbh-fab:active { transform: scale(0.97); }
 
 /* ---------- Masked avatar (shared by FAB + header) ----------------------- */
 /* A perfect circle that hides the raw asset's checkerboard + bottom text by
@@ -94,8 +101,8 @@
 #nabih-root .nbh-fab .nbh-badge {
   position: absolute;
   top: -2px;
-  inset-inline-start: -2px;
-  z-index: 2;                      /* above the masked avatar */
+  right: -2px;                     /* physical right — stays on the avatar when the pill expands */
+  z-index: 3;                      /* above the masked avatar */
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -474,27 +481,7 @@
   30% { transform: translateY(-5px); opacity: 1; }
 }
 
-/* ---------- Mobile/tablet: lift the FAB above the site's bottom nav bar --- */
-@media (max-width: 1023px) {
-  #nabih-root .nbh-fab { bottom: 88px; }   /* clears the ~74px fixed bottom bar */
-  #nabih-root .nbh-window { bottom: 160px; max-height: calc(100vh - 196px); }
-  #nabih-root .nbh-teaser { bottom: 102px; }
-}
-
-/* ---------- Small screens ------------------------------------------------- */
-@media (max-width: 460px) {
-  #nabih-root .nbh-window {
-    bottom: 0;
-    right: 0;
-    left: 0;
-    width: 100%;
-    max-width: 100%;
-    height: 88vh;            /* leave the top of the page visible/usable */
-    max-height: 88vh;
-    border-radius: 18px 18px 0 0;
-  }
-  #nabih-root .nbh-fab { bottom: 88px; right: 18px; }
-}
+/* (Mobile/responsive rules consolidated in the !important block at the end.) */
 
 /* Shorter viewports: cap height so the window never overflows the screen. */
 @media (max-height: 680px) {
@@ -622,55 +609,36 @@
   }
 }
 
-/* ---------- Attention-grabber teaser bubble ----------------------------- */
-#nabih-root .nbh-teaser {
-  position: fixed;
-  bottom: 38px;                 /* aligns with the FAB's vertical centre */
-  right: 100px;                 /* sits to the inline-start (left in RTL) of FAB */
-  z-index: 2147483000;
-  max-width: 230px;
-  background: #ffffff;
-  color: var(--nbh-primary);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.5;
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: 1px solid #f0e3c0;
-  box-shadow: 0 10px 30px rgba(17, 38, 58, 0.22);
-  cursor: pointer;
-  /* fade/scale in (delayed), then gently bob */
-  animation: nbh-teaser-in 0.45s 1s both, nbh-teaser-bob 2.6s 1.5s ease-in-out infinite;
+/* ---------- Launcher pill (expanding "اسأل نبيه" label) ------------------ */
+/* The avatar lives in a fixed circle; the label sits beside it and slides
+   open, so the whole FAB morphs from a circle into a labelled pill. */
+#nabih-root .nbh-fab-avatar {
+  position: relative;
+  flex: 0 0 auto;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;       /* clips the masked avatar only (badge lives on the FAB) */
 }
-#nabih-root .nbh-teaser-text { white-space: normal; }
-/* small pointer triangle aimed at the FAB (to the right in RTL) */
-#nabih-root .nbh-teaser-arrow {
-  position: absolute;
-  top: 50%;
-  right: -7px;
-  width: 14px;
-  height: 14px;
-  background: #ffffff;
-  border-top: 1px solid #f0e3c0;
-  border-right: 1px solid #f0e3c0;
-  transform: translateY(-50%) rotate(45deg);
-}
-#nabih-root .nbh-teaser.nbh-teaser-hidden {
+#nabih-root .nbh-fab-label {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
   opacity: 0;
-  visibility: hidden;
-  transform: scale(0.85) translateX(12px);
-  pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s 0.25s;
-  animation: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: max-width 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
 }
-
-@keyframes nbh-teaser-in {
-  from { opacity: 0; transform: scale(0.85) translateX(12px); }
-  to   { opacity: 1; transform: scale(1) translateX(0); }
+#nabih-root .nbh-fab.nbh-fab-expanded {
+  border-radius: 34px;
+  padding-inline-end: 16px;   /* breathing room on the label side */
+  gap: 9px;
 }
-@keyframes nbh-teaser-bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-6px); }
+#nabih-root .nbh-fab.nbh-fab-expanded .nbh-fab-label {
+  max-width: 150px;
+  opacity: 1;
 }
 
 /* Keep the teaser on mobile too (above the lifted FAB); only suppress it on
@@ -680,33 +648,25 @@
    ========================================================================= */
 
 @media (max-width: 1023px) {
-  #nabih-root .nbh-fab { 
-    bottom: 95px !important;       
+  #nabih-root .nbh-fab {
+    bottom: 95px !important;
     right: 20px !important;
-    width: 58px !important;        
+    min-width: 58px !important;     /* circle when collapsed; can still expand to a pill */
+    width: auto !important;
     height: 58px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    justify-content: flex-start !important;
   }
-  
-  #nabih-root .nbh-avatar-mask, 
+
+  #nabih-root .nbh-avatar-mask,
   #nabih-root .nbh-avatar-mask img {
-    width: 100% !important;
-    height: 100% !important;
     object-fit: cover !important;
     border-radius: 50% !important;
   }
 
-  #nabih-root .nbh-window { 
-    bottom: 155px !important; 
+  #nabih-root .nbh-window {
+    bottom: 155px !important;
     right: 20px !important;
-    max-height: calc(100vh - 190px) !important; 
-  }
-  
-  #nabih-root .nbh-teaser { 
-    bottom: 104px !important; 
-    right: 90px !important;
+    max-height: calc(100vh - 190px) !important;
   }
 }
 
@@ -739,12 +699,14 @@
 }
 
 @media (max-height: 680px) {
-  #nabih-root .nbh-window { 
-    height: calc(100vh - 140px) !important; 
+  #nabih-root .nbh-window {
+    height: calc(100vh - 140px) !important;
     max-height: 70vh !important;
   }
 }
 
+/* On very narrow screens, don't let the pill expand wide — keep it a circle */
 @media (max-width: 360px) {
-  #nabih-root .nbh-teaser { display: none !important; }
+  #nabih-root .nbh-fab.nbh-fab-expanded .nbh-fab-label { max-width: 0 !important; opacity: 0 !important; }
+  #nabih-root .nbh-fab.nbh-fab-expanded { border-radius: 50% !important; padding-inline-end: 0 !important; gap: 0 !important; }
 }
