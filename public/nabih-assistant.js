@@ -208,15 +208,15 @@
     fetch(FEATURED_ENDPOINT)
       .then(function (r) { return r.json(); })
       .then(function (data) { addSnippets(data && data.snippets); })
-      .catch(function () { /* offline / endpoint missing — skip the feed */ })
+      .catch(function () { addSuggestions(WELCOME_CHIPS); /* fallback if feed fails */ })
       .then(function () {
-        addSuggestions(WELCOME_CHIPS);
-        // Land at the top so the greeting + first cards are visible on open.
+        // Land at the top so the greeting + categories are visible on open.
         requestAnimationFrame(function () { els.messages.scrollTop = 0; });
       });
   }
 
-  // Proactive "استكشف أحدث دوراتنا" feed of compact Course Snippet Cards.
+  // Welcome feed: category cards that expand (accordion) into their FAQ
+  // questions. Categories with a `query` (no questions) answer directly.
   function addSnippets(list) {
     if (!list || !list.length) return;
     var section = document.createElement('div');
@@ -224,7 +224,7 @@
 
     var title = document.createElement('div');
     title.className = 'nbh-snippets-title';
-    title.textContent = 'استكشف أحدث دوراتنا';
+    title.textContent = 'كيف أقدر أساعدك؟';
     section.appendChild(title);
 
     var grid = document.createElement('div');
@@ -232,6 +232,11 @@
 
     list.forEach(function (s) {
       if (!s || !s.title) return;
+      var hasQ = s.questions && s.questions.length;
+
+      var item = document.createElement('div');
+      item.className = 'nbh-snippet-item';
+
       var card = document.createElement('button');
       card.type = 'button';
       card.className = 'nbh-snippet';
@@ -256,10 +261,45 @@
       }
       card.appendChild(body);
 
-      card.addEventListener('click', function () {
-        send(s.query || s.title);
-      });
-      grid.appendChild(card);
+      if (hasQ) {
+        var chev = document.createElement('span');
+        chev.className = 'nbh-snippet-chev';
+        chev.textContent = '‹';
+        card.appendChild(chev);
+      }
+      item.appendChild(card);
+
+      if (hasQ) {
+        var panel = document.createElement('div');
+        panel.className = 'nbh-snippet-questions';
+        s.questions.forEach(function (q) {
+          var qb = document.createElement('button');
+          qb.type = 'button';
+          qb.className = 'nbh-q';
+          qb.textContent = q;
+          qb.addEventListener('click', function (e) {
+            e.stopPropagation();
+            send(q);
+          });
+          panel.appendChild(qb);
+        });
+        item.appendChild(panel);
+
+        card.addEventListener('click', function () {
+          var willOpen = !item.classList.contains('nbh-open');
+          // accordion: only one category open at a time
+          var open = grid.querySelectorAll('.nbh-snippet-item.nbh-open');
+          for (var i = 0; i < open.length; i++) open[i].classList.remove('nbh-open');
+          if (willOpen) {
+            item.classList.add('nbh-open');
+            setTimeout(function () { item.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
+          }
+        });
+      } else {
+        card.addEventListener('click', function () { send(s.query || s.title); });
+      }
+
+      grid.appendChild(item);
     });
 
     section.appendChild(grid);

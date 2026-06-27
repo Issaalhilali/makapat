@@ -570,6 +570,45 @@
   -webkit-box-orient: vertical;
 }
 
+/* accordion: category expands into its FAQ questions */
+#nabih-root .nbh-snippet-item { display: flex; flex-direction: column; }
+#nabih-root .nbh-snippet-chev {
+  flex-shrink: 0;
+  color: var(--nbh-text-soft);
+  font-size: 20px;
+  line-height: 1;
+  margin-inline-start: 2px;
+  transition: transform 0.25s ease;
+}
+#nabih-root .nbh-snippet-item.nbh-open .nbh-snippet-chev { transform: rotate(-90deg); }
+#nabih-root .nbh-snippet-item.nbh-open .nbh-snippet { border-color: #c7d6e4; }
+#nabih-root .nbh-snippet-questions {
+  max-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 6px;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+#nabih-root .nbh-snippet-item.nbh-open .nbh-snippet-questions { max-height: 320px; padding: 8px 6px 2px; }
+#nabih-root .nbh-q {
+  width: 100%;
+  text-align: start;
+  background: var(--nbh-surface);
+  border: 1px solid var(--nbh-border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--nbh-text);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+#nabih-root .nbh-q::before { content: "❓ "; }
+#nabih-root .nbh-q:hover { background: #e6eef6; transform: translateY(-1px); }
+
+
 /* ---------- Conversion ribbon on course cards ---------------------------- */
 #nabih-root .nbh-card-ribbon {
   display: inline-block;
