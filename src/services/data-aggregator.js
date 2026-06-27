@@ -42,18 +42,43 @@ function shorten(text, max) {
   return text.length <= max ? text : text.slice(0, max).replace(/\s+\S*$/, '') + '…';
 }
 
-// Fallback icons if a course has none.
-const FALLBACK_ICONS = ['📊', '🛠️', '🎯', '💻', '🚀', '🧩'];
+// Fixed welcome categories (client-approved design). Each snippet, when tapped,
+// sends a query that triggers the matching FAQ answer / contact card.
+const WELCOME_CATEGORIES = [
+  {
+    title: 'التسجيل والشهادات',
+    icon: '🎓',
+    benefit: 'سجّل في دوراتنا وتعرّف على الشهادات والاعتمادات وآلية الحصول عليها.',
+    query: 'كيف أسجل في دورة؟',
+  },
+  {
+    title: 'البرامج التدريبية',
+    icon: '💼',
+    benefit: 'استعرض مجالاتنا التدريبية المتنوعة واكتشف الدورات المناسبة لاحتياجاتك.',
+    query: 'ما المجالات التدريبية التي تقدمونها؟',
+  },
+  {
+    title: 'ريادة الأعمال',
+    icon: '💡',
+    benefit: 'طوّر أفكارك ومهاراتك الريادية وأطلق مشروعك بثقة واحترافية.',
+    query: 'ريادة الأعمال',
+  },
+  {
+    title: 'خدمات الشركات والجهات',
+    icon: '🏢',
+    benefit: 'برامج مخصصة، عروض أسعار، وحلول تدريبية للشركات والقطاعين العام والخاص والغير ربحي.',
+    query: 'هل تقدمون دورات للشركات والجهات الحكومية؟',
+  },
+  {
+    title: 'الدعم والمساعدة',
+    icon: '🎧',
+    benefit: 'تواصل مع خدمة العملاء أو اطلب المساعدة للإجابة عن جميع استفساراتك.',
+    query: 'أحتاج مساعدة من موظف خدمة العملاء',
+  },
+];
 
-// Build category snippets from the curated featured courses.
 function categoriesFromCourses(limit) {
-  return knowledgeBase.getCourses(limit).map((c, i) => ({
-    title: c.title,
-    icon: c.icon || FALLBACK_ICONS[i % FALLBACK_ICONS.length],
-    benefit: shorten(c.description, 70),
-    // Clicking a snippet drives straight into the priced-cards pricing flow.
-    query: 'أسعار الدورات',
-  }));
+  return WELCOME_CATEGORIES.slice(0, limit);
 }
 
 // Best-effort live fetch of the newest articles from muk3bat.com.
@@ -76,7 +101,7 @@ async function fetchLatestArticles(limit) {
 async function aggregate() {
   console.log('\n  ✦ Aggregating featured content for the welcome feed\n');
 
-  const categories = categoriesFromCourses(3);
+  const categories = categoriesFromCourses(5);
   const popularCourses = knowledgeBase.getCourses(4).map((c) => ({
     title: c.title,
     price: c.price || null,
@@ -117,7 +142,7 @@ function load() {
 
 // Snippets for the proactive welcome feed. Prefers the prebuilt file; falls
 // back to deriving them live from the knowledge base so it always returns data.
-function getWelcomeSnippets(limit = 3) {
+function getWelcomeSnippets(limit = 5) {
   const file = load();
   if (file && Array.isArray(file.categories) && file.categories.length) {
     return file.categories.slice(0, limit);

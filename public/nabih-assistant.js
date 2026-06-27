@@ -225,11 +225,7 @@
       card.type = 'button';
       card.className = 'nbh-snippet';
 
-      var icon = document.createElement('span');
-      icon.className = 'nbh-snippet-icon';
-      icon.textContent = s.icon || '🧩';
-      card.appendChild(icon);
-
+      // text first (right in RTL), icon last (left) — matches the approved design
       var body = document.createElement('span');
       body.className = 'nbh-snippet-body';
       var t = document.createElement('span');
@@ -243,6 +239,11 @@
         body.appendChild(b);
       }
       card.appendChild(body);
+
+      var icon = document.createElement('span');
+      icon.className = 'nbh-snippet-icon';
+      icon.textContent = s.icon || '🧩';
+      card.appendChild(icon);
 
       card.addEventListener('click', function () {
         send(s.query || s.title);

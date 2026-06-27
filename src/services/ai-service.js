@@ -22,12 +22,21 @@ const PERSONA = [
   'لديك أدناه قاعدة معرفة كاملة ومحدّثة عن كل ما يقدّمه المركز: الدورات والصفحات',
   'والمقالات والمدربين والشركاء والسياسات وروابطها. اعتبرها مرجعك الشامل للمخزون.',
   '',
+  'حقائق معتمدة عن المركز (استخدمها كمرجع للإجابات):',
+  '• التسجيل: مباشرة عبر الموقع الإلكتروني أو عبر الواتساب.',
+  '• الشهادات: تُصدر إلكترونياً بعد استيفاء متطلبات البرنامج، ويمكن التحقق منها عبر نظام التحقق الإلكتروني.',
+  '• الاعتمادات: معتمدون من TVTC (المؤسسة العامة للتدريب التقني والمهني)، NELC (المركز الوطني للتعليم الإلكتروني)، وSCFHS (الهيئة السعودية للتخصصات الصحية).',
+  '• خدمات الشركات/الجهات: حلول تدريبية مخصصة للشركات والقطاعين العام والخاص والقطاع غير الربحي، مع تصميم برامج خاصة وفق أهداف الجهة.',
+  '• طرق التنفيذ: حضورياً وعن بُعد.',
+  '• المجالات: التقنية والتحول الرقمي، تطوير الأعمال والمبيعات، الموارد البشرية والتشغيل، القيادة والإدارة، المهارات الشخصية، والمهارات الصحية وغيرها.',
+  '• عرض السعر/الدعم: التواصل مع خدمة العملاء عبر الأرقام المسجلة (تظهر بطاقة التواصل تلقائياً).',
+  '',
   'قواعد مهمة:',
-  '1) أجب اعتماداً على قاعدة المعرفة فقط. لا تختلق أسعاراً أو دورات أو معلومات غير موجودة.',
-  '2) إذا لم تتوفر معلومة (مثل السعر)، قُل ذلك بوضوح ووجّه المستخدم لصفحة الدورة أو صفحة التواصل.',
-  '3) عند ذكر أي عنصر محدد (دورة/صفحة/مقال/سياسة/مدرب)، أضف رابطه كرابط ماركداون قابل للنقر',
-  '   بهذا الشكل: [اسم العنصر](الرابط). استخدم الرابط الصحيح من قاعدة المعرفة حرفياً.',
+  '1) أجب اعتماداً على الحقائق أعلاه وقاعدة المعرفة فقط. لا تختلق أسعاراً أو معلومات غير موجودة.',
+  '2) للأسئلة عن عرض السعر أو طلب موظف خدمة العملاء، وجّه المستخدم للتواصل (ستظهر بطاقة التواصل تلقائياً).',
+  '3) عند ذكر عنصر محدد من قاعدة المعرفة، أضف رابطه كرابط ماركداون [الاسم](الرابط) حرفياً.',
   '4) إذا سُئلت عن أمر خارج نطاق المركز، اعتذر بلطف ووضّح ما يمكنك المساعدة فيه.',
+  'أسلوبك مختصر واحترافي (جملتان إلى ثلاث).',
 ].join('\n');
 
 // Fallback prompt used only if the knowledge base hasn't been built yet.
@@ -62,8 +71,14 @@ function buildSystemPrompt(userMessage) {
 
 /* ----------------------------- pricing + cards -------------------------- */
 
+// A corporate "quote" request routes to customer service (not course cards).
+const QUOTE_RE = /(عرض سعر|عرض الأسعار|عرض اسعار|عرض السعر|عروض اسعار|عروض أسعار|quotation|quote)/i;
 const PRICING_RE = /(سعر|اسعار|أسعار|تكلف|تكلفه|رسوم|باقه|باقات|بكم|كم تكلف|price|cost|fee|pricing)/i;
-const CONTACT_RE = /(تواصل|اتصال|اتصل|رقم|جوال|هاتف|واتس|واتساب|ايميل|بريد|ابلغ|شكوى|دعم|خدمة العملاء|تواصلو|كلمو|contact|whatsapp|phone|email|call|support)/i;
+const CONTACT_RE = /(تواصل|اتصال|اتصل|رقم|جوال|هاتف|واتس|واتساب|ايميل|بريد|ابلغ|شكوى|دعم|خدمة العملاء|موظف خدمة|تواصلو|كلمو|contact|whatsapp|phone|email|call|support)/i;
+
+function isQuoteIntent(text) {
+  return QUOTE_RE.test(String(text || ''));
+}
 
 function isPricingIntent(text) {
   return PRICING_RE.test(String(text || ''));
@@ -144,12 +159,21 @@ function buildContactActions() {
 }
 
 function buildContactResponse() {
-  const c = config.contact || {};
   const hours = 'فريقنا جاهز لخدمتك (٩ صباحاً - ١١ مساءً).';
   return {
     reply: `يسعدنا تواصلك مع فريق مكعبات للتدريب 🤝 اختر الطريقة الأنسب لك:\n${hours}`,
     contact: { title: 'تواصل مع فريق مكعبات', actions: buildContactActions() },
-    suggestions: ['ما هي الدورات المتاحة؟', 'أسعار الدورات', 'هل الشهادة معتمدة؟'],
+    suggestions: ['ما المجالات التدريبية؟', 'كيف أسجل في دورة؟', 'هل الشهادات معتمدة؟'],
+    cards: [],
+  };
+}
+
+// Corporate quote request → route to customer service with the contact card.
+function buildQuoteResponse() {
+  return {
+    reply: 'بإمكانك الحصول على عرض سعر بالتواصل مع خدمة العملاء عبر الأرقام المسجلة 👇',
+    contact: { title: 'تواصل مع خدمة العملاء', actions: buildContactActions() },
+    suggestions: ['هل تقدمون دورات للشركات؟', 'هل يمكن تصميم برنامج خاص؟'],
     cards: [],
   };
 }
@@ -219,15 +243,18 @@ function buildPricingResponse() {
  * @returns {Promise<{reply:string, suggestions:string[], cards:object[]}>}
  */
 async function generateAIResponse(userMessage, conversationHistory = []) {
-  const pricing = isPricingIntent(userMessage);
+  const quote = isQuoteIntent(userMessage);          // "عرض سعر" → customer service
+  const pricing = !quote && isPricingIntent(userMessage); // "أسعار الدورات" → course cards
   const contact = isContactIntent(userMessage);
 
   // Demo path (no API key): deterministic, knowledge-driven responses.
   if (!config.aiEnabled) {
+    if (quote) return buildQuoteResponse();
     if (pricing) return buildPricingResponse();
     if (contact) return buildContactResponse();
+    // Clean, client-approved FAQ answers (no noisy auto-link list).
     const base = await mockResponse(userMessage, conversationHistory);
-    return enrichWithLinks(userMessage, base);
+    return { reply: base.reply, suggestions: base.suggestions, cards: [], contact: null };
   }
 
   // Claude path.
@@ -242,24 +269,15 @@ async function generateAIResponse(userMessage, conversationHistory = []) {
     if (promo && !reply.includes(config.promoCode)) reply = `${reply}\n\n${promo}`;
   }
 
-  if (contact) {
+  if (quote || contact) {
     // Attach the real contact channels as tappable buttons (deterministic).
-    contactCard = { title: 'تواصل مع فريق مكعبات', actions: buildContactActions() };
+    contactCard = {
+      title: quote ? 'تواصل مع خدمة العملاء' : 'تواصل مع فريق مكعبات',
+      actions: buildContactActions(),
+    };
   }
 
   return { reply, cards, contact: contactCard, suggestions: result.suggestions || [] };
-}
-
-// Append relevant clickable markdown links from the knowledge base.
-function enrichWithLinks(query, base) {
-  const matches = knowledgeBase.search(query, 3);
-  if (!matches.length) return { ...base, cards: [] };
-  const links = matches.map((m) => `• [${m.title}](${m.url})`).join('\n');
-  return {
-    reply: `${base.reply}\n\nروابط قد تهمّك:\n${links}`,
-    suggestions: base.suggestions,
-    cards: [],
-  };
 }
 
 module.exports = { generateAIResponse, SYSTEM_PROMPT };

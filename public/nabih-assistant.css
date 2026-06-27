@@ -47,7 +47,7 @@
 #nabih-root .nbh-fab {
   position: fixed;
   bottom: 28px;                     /* roomier, elegant offset from the edge */
-  right: 28px;
+  left: 28px;                       /* bottom-LEFT placement */
   z-index: 2147483000;
   height: 64px;
   min-width: 64px;                  /* circle when collapsed; grows into a pill */
@@ -60,7 +60,8 @@
   color: #fff;
   display: flex;
   align-items: center;
-  justify-content: flex-start;      /* avatar pinned to the inline-start (right in RTL) */
+  justify-content: flex-start;
+  flex-direction: row-reverse;      /* avatar hugs the left edge, label opens to the right */
   gap: 0;
   /* layered depth + a faint gold halo so it floats clear of the page edge */
   box-shadow: 0 12px 30px rgba(17, 38, 58, 0.34), 0 0 0 5px rgba(212, 175, 55, 0.12);
@@ -101,7 +102,7 @@
 #nabih-root .nbh-fab .nbh-badge {
   position: absolute;
   top: -2px;
-  right: -2px;                     /* physical right — stays on the avatar when the pill expands */
+  left: -2px;                      /* physical left — stays on the avatar (left edge) when the pill expands */
   z-index: 3;                      /* above the masked avatar */
   width: 14px;
   height: 14px;
@@ -124,7 +125,7 @@
 #nabih-root .nbh-window {
   position: fixed;
   bottom: 96px;       /* sits directly above the FAB */
-  right: 24px;        /* physical right corner (RTL-safe) */
+  left: 24px;         /* physical left corner (matches the FAB) */
   z-index: 2147483000;
   width: 380px;
   max-width: calc(100vw - 32px);
@@ -143,7 +144,7 @@
   backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid var(--nbh-glass-border);
 
-  transform-origin: bottom right;   /* grow from the FAB */
+  transform-origin: bottom left;    /* grow from the FAB (left) */
   opacity: 0;
   transform: translateY(20px) scale(0.92);
   pointer-events: none;
@@ -514,43 +515,48 @@
 #nabih-root .nbh-snippet {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   width: 100%;
   text-align: start;
-  background: rgba(255, 255, 255, 0.9);
+  background: #fff;
   border: 1px solid var(--nbh-border);
-  border-radius: 14px;
-  padding: 10px 12px;
+  border-radius: 16px;
+  padding: 13px 14px;
   cursor: pointer;
+  box-shadow: 0 3px 12px rgba(17, 38, 58, 0.06);
   transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 #nabih-root .nbh-snippet:hover {
   transform: translateY(-2px);
   border-color: #c7d6e4;
-  box-shadow: 0 8px 20px rgba(17, 38, 58, 0.12);
+  box-shadow: 0 10px 24px rgba(17, 38, 58, 0.14);
 }
 #nabih-root .nbh-snippet-icon {
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 19px;
+  font-size: 26px;
   background: linear-gradient(135deg, rgba(242, 154, 62, 0.16), rgba(43, 182, 115, 0.16));
 }
 #nabih-root .nbh-snippet-body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  flex: 1;
   min-width: 0;
+  /* faint divider between the text block and the icon (icon sits on the left) */
+  border-inline-end: 1px solid var(--nbh-border);
+  padding-inline-end: 12px;
 }
 #nabih-root .nbh-snippet-title {
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   color: var(--nbh-text);
-  line-height: 1.4;
+  line-height: 1.5;
 }
 #nabih-root .nbh-snippet-benefit {
   font-size: 12px;
@@ -560,6 +566,7 @@
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
@@ -633,7 +640,7 @@
 }
 #nabih-root .nbh-fab.nbh-fab-expanded {
   border-radius: 34px;
-  padding-inline-end: 16px;   /* breathing room on the label side */
+  padding-right: 16px;        /* breathing room on the label side (right, when on the left) */
   gap: 9px;
 }
 #nabih-root .nbh-fab.nbh-fab-expanded .nbh-fab-label {
@@ -711,7 +718,7 @@
 @media (max-width: 1023px) {
   #nabih-root .nbh-fab {
     bottom: 95px !important;
-    right: 20px !important;
+    left: 20px !important;
     min-width: 58px !important;     /* circle when collapsed; can still expand to a pill */
     width: auto !important;
     height: 58px !important;
@@ -726,7 +733,7 @@
 
   #nabih-root .nbh-window {
     bottom: 155px !important;
-    right: 20px !important;
+    left: 20px !important;
     max-height: calc(100vh - 190px) !important;
   }
 }
@@ -734,8 +741,8 @@
 @media (max-width: 460px) {
   #nabih-root .nbh-window {
     bottom: 90px !important;      
-    right: 20px !important;
     left: 20px !important;
+    right: 20px !important;
     width: auto !important;
     max-width: calc(100vw - 40px) !important;
     height: 480px !important;      
@@ -745,7 +752,7 @@
   
   #nabih-root .nbh-fab { 
     bottom: 95px !important; 
-    right: 20px !important; 
+    left: 20px !important; 
   }
 
   #nabih-root .nbh-msg {

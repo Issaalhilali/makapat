@@ -42,7 +42,7 @@ router.post('/nabih-chat', handleChat);
 
 // Proactive welcome feed — featured course snippets for the chat widget.
 router.get('/nabih-featured', (req, res) => {
-  res.json({ snippets: getWelcomeSnippets(3) });
+  res.json({ snippets: getWelcomeSnippets(5) });
 });
 
 // Lightweight health check for load balancers / uptime monitors.
