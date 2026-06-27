@@ -86,7 +86,14 @@
 
   var WELCOME =
     'أهلاً بك في مركز مكعبات للتدريب! 🧩 أنا <b>نبيه</b>، مساعدك الذكي. اسألني عن الدورات، الأسعار، الاعتماد، أو أي شيء آخر وسأساعدك فوراً.';
-  var WELCOME_CHIPS = ['أسعار الدورات', 'هل الشهادة معتمدة؟', 'من هم المدربون؟', 'تواصل معنا'];
+  var WELCOME_CHIPS = [
+    'كيف أسجل في دورة؟',
+    'هل الشهادات تصدر إلكترونياً؟',
+    'حضوري أو عن بُعد؟',
+    'هل تقدمون دورات للشركات؟',
+    'كيف أحصل على عرض سعر؟',
+    'تواصل معنا',
+  ];
 
   var els = {}; // cached element refs
   var isOpen = false;
@@ -202,7 +209,11 @@
       .then(function (r) { return r.json(); })
       .then(function (data) { addSnippets(data && data.snippets); })
       .catch(function () { /* offline / endpoint missing — skip the feed */ })
-      .then(function () { addSuggestions(WELCOME_CHIPS); });
+      .then(function () {
+        addSuggestions(WELCOME_CHIPS);
+        // Land at the top so the greeting + first cards are visible on open.
+        requestAnimationFrame(function () { els.messages.scrollTop = 0; });
+      });
   }
 
   // Proactive "استكشف أحدث دوراتنا" feed of compact Course Snippet Cards.
@@ -225,7 +236,12 @@
       card.type = 'button';
       card.className = 'nbh-snippet';
 
-      // text first (right in RTL), icon last (left) — matches the approved design
+      // icon first (right in RTL), text after (left)
+      var icon = document.createElement('span');
+      icon.className = 'nbh-snippet-icon';
+      icon.textContent = s.icon || '🧩';
+      card.appendChild(icon);
+
       var body = document.createElement('span');
       body.className = 'nbh-snippet-body';
       var t = document.createElement('span');
@@ -239,11 +255,6 @@
         body.appendChild(b);
       }
       card.appendChild(body);
-
-      var icon = document.createElement('span');
-      icon.className = 'nbh-snippet-icon';
-      icon.textContent = s.icon || '🧩';
-      card.appendChild(icon);
 
       card.addEventListener('click', function () {
         send(s.query || s.title);
