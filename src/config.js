@@ -35,11 +35,12 @@ const config = {
   promoEnabled: process.env.NABIH_PROMO !== 'false',
   promoCode: process.env.NABIH_PROMO_CODE || 'NABIH10',
 
-  // Contact channels (real values from muk3bat.com; override via env in prod).
+  // Contact channels (live values from muk3bat.com footer; override via env).
   contact: {
-    whatsapp: process.env.NABIH_WHATSAPP || 'https://wa.me/966583905553',
-    phone: process.env.NABIH_PHONE || '+966583905553',
-    phoneDisplay: process.env.NABIH_PHONE_DISPLAY || '0583905553',
+    whatsapp: process.env.NABIH_WHATSAPP || 'https://wa.me/966555991437',
+    whatsappDisplay: process.env.NABIH_WHATSAPP_DISPLAY || '0555991437',
+    phone: process.env.NABIH_PHONE || '+966115207950',
+    phoneDisplay: process.env.NABIH_PHONE_DISPLAY || '011 520 7950',
     email: process.env.NABIH_EMAIL || 'info@muk3bat.com',
   },
 };
