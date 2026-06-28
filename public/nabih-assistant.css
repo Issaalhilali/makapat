@@ -715,39 +715,56 @@
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
+/* Calm, premium buttons: white surface + dark text; channel identity lives in
+   a soft pastel icon chip (not loud full-color backgrounds). */
 #nabih-root .nbh-contact-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   text-decoration: none;
   border-radius: 12px;
-  padding: 10px 12px;
-  font-size: 13px;
+  padding: 9px 11px;
+  font-size: 12.5px;
   font-weight: 700;
-  color: #fff;
-  background: var(--nbh-primary);
-  transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  color: var(--nbh-text);
+  background: #fff;
+  border: 1px solid var(--nbh-border);
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   min-width: 0;
 }
-#nabih-root .nbh-contact-btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+#nabih-root .nbh-contact-btn:hover {
+  transform: translateY(-1px);
+  border-color: #c7d6e4;
+  box-shadow: 0 6px 16px rgba(17, 38, 58, 0.1);
+}
 #nabih-root .nbh-contact-btn:active { transform: scale(0.98); }
-#nabih-root .nbh-contact-ic { font-size: 15px; line-height: 1; flex-shrink: 0; }
+#nabih-root .nbh-contact-ic {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
+}
 #nabih-root .nbh-contact-lbl { white-space: nowrap; }
 #nabih-root .nbh-contact-sub {
   margin-inline-start: auto;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
-  opacity: 0.85;
+  color: var(--nbh-text-soft);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   direction: ltr;
 }
-/* channel tints */
-#nabih-root .nbh-contact-whatsapp { background: linear-gradient(135deg, #25d366, #128c46); }
-#nabih-root .nbh-contact-call     { background: linear-gradient(135deg, var(--nbh-primary), var(--nbh-primary-dark)); }
-#nabih-root .nbh-contact-email    { background: linear-gradient(135deg, var(--nbh-orange), var(--nbh-orange-dark)); }
-#nabih-root .nbh-contact-page     { background: linear-gradient(135deg, #5b6b7b, #3f4b57); }
+/* soft pastel tints on the icon chip only — recognizable yet easy on the eye */
+#nabih-root .nbh-contact-whatsapp .nbh-contact-ic { background: rgba(37, 211, 102, 0.15); }
+#nabih-root .nbh-contact-call .nbh-contact-ic     { background: rgba(17, 38, 58, 0.10); }
+#nabih-root .nbh-contact-email .nbh-contact-ic    { background: rgba(242, 154, 62, 0.16); }
+#nabih-root .nbh-contact-page .nbh-contact-ic     { background: rgba(91, 107, 123, 0.14); }
 
 
 /* =========================================================================
