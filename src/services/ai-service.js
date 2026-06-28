@@ -151,10 +151,10 @@ function buildContactActions() {
   const kb = knowledgeBase.load();
   const contactUrl = kb && kb.store && kb.store.contactUrl;
   const actions = [];
-  if (c.whatsapp) actions.push({ type: 'whatsapp', label: 'واتساب', url: c.whatsapp });
+  if (c.whatsapp) actions.push({ type: 'whatsapp', label: 'واتساب', url: c.whatsapp, display: c.phoneDisplay || '' });
   if (c.phone) actions.push({ type: 'call', label: 'اتصال', url: 'tel:' + c.phone, display: c.phoneDisplay || c.phone });
   if (c.email) actions.push({ type: 'email', label: 'البريد', url: 'mailto:' + c.email, display: c.email });
-  if (contactUrl) actions.push({ type: 'page', label: 'صفحة التواصل', url: contactUrl });
+  if (contactUrl) actions.push({ type: 'page', label: 'صفحة التواصل', url: contactUrl, display: 'فتح الصفحة' });
   return actions;
 }
 

@@ -455,7 +455,9 @@
       if (a.display) {
         var sub = document.createElement('span');
         sub.className = 'nbh-contact-sub';
-        sub.textContent = toArabicDigits(a.display);
+        // Arabic-Indic only for phone numbers; keep emails/URLs as-is (Latin).
+        sub.textContent =
+          a.type === 'call' || a.type === 'whatsapp' ? toArabicDigits(a.display) : a.display;
         btn.appendChild(sub);
       }
       grid.appendChild(btn);
